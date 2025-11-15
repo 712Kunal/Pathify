@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import logger from "./utils/logger.js";
+import ApiResponse from "./utils/ApiResponse.js";
 
 import connectDB from "./config/db.js";
 
@@ -28,10 +29,7 @@ connectDB();
 
 //Health-check
 app.get("/", (req, res) => {
-  res.status(200).json({
-    message: "Server is running",
-    status: "Healthy",
-  });
+  res.json(new ApiResponse(200, "Server is running successfully"));
 });
 
 // Error handling for unhandled rejections
