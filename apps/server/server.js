@@ -34,6 +34,18 @@ app.get("/", (req, res) => {
   });
 });
 
+// Error handling for unhandled rejections
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error(
+    {
+      promise,
+      reason,
+      type: "unhandledRejection",
+    },
+    "Unhandled Promise Rejection occurred"
+  );
+});
+
 //Server listen
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
