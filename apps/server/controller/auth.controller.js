@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
@@ -10,7 +10,7 @@ import logger from "../utils/logger.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
@@ -53,7 +53,7 @@ export const register = async (req, res) => {
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -101,25 +101,31 @@ export const login = async (req, res) => {
   }
 };
 
-export const refreshAccess = async (req, res) => {
+export const refreshAccessToken = async (req, res, next) => {
   try {
-    const token = req.cookies.refreshToken;
+    const incomingRefreshToken = req.cookies.refreshToken;
 
-    if (!token) {
+    if (!incomingRefreshToken) {
       logger.error({ RefreshToke: token }, "Token not found");
       throw new ApiError(401, "No refresh token");
     }
 
     // token format validation
-    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decodedToken.userId);
     if (!user) {
       logger.error({ User: user }, "User not found");
       throw new ApiError(401, "User not found");
     }
 
-    const isValid = await bcrypt.compare(token, user.refreshToken);
+    const isValid = await bcrypt.compare(
+      incomingRefreshToken,
+      user.refreshToken
+    );
     if (!isValid) {
       logger.error({ token: token }, "Not valid token");
       throw new ApiError(401, "Invalid refresh token");
@@ -155,18 +161,47 @@ export const refreshAccess = async (req, res) => {
   }
 };
 
-export const logout = async (req, res) => {
+export const logout = async (req, res, next) => {
   try {
-    res.clearCookie("refreshToken");
+    const incomingRefreshToken = req.cookies.refreshToken;
 
-    // remove refresh token from DB
-    const user = await User.findById(req.body.userId);
+    if (!incomingRefreshToken) {
+      logger.error("No cookie found");
+      throw new ApiError(400, "You are not logged in");
+    }
+
+    // Verify token
+    let decoded = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const user = await User.findById(decoded.userId);
+
     if (user) {
       user.refreshToken = "";
       await user.save();
     }
 
-    res.json(new ApiResponse(200, "Logged out successfully"));
+    // MUST match original cookie settings
+    res.cookie("refreshToken", "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/",
+      expires: new Date(0),
+    });
+
+    const responseData = {
+      user: {
+        userId: user._id,
+        email: user.email,
+      },
+    };
+
+    res.json(
+      new ApiResponse(200, "User logged out successfully", responseData)
+    );
   } catch (error) {
     next(
       error instanceof ApiError

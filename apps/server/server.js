@@ -27,10 +27,15 @@ app.use(
 // Database connection
 connectDB();
 
+import authRoutes from "./routes/auth.routes.js";
+
 //Health-check
 app.get("/", (req, res) => {
   res.json(new ApiResponse(200, "Server is running successfully"));
 });
+
+//public routes
+app.use("/api/auth", authRoutes);
 
 // Error handling for unhandled rejections
 process.on("unhandledRejection", (reason, promise) => {
