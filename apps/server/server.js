@@ -28,6 +28,7 @@ app.use(
 connectDB();
 
 import authRoutes from "./routes/auth.routes.js";
+import errorMiddleware from "./middlewares/error.middleware.js";
 
 //Health-check
 app.get("/", (req, res) => {
@@ -36,6 +37,9 @@ app.get("/", (req, res) => {
 
 //public routes
 app.use("/api/auth", authRoutes);
+
+// Mount the global error handler LAST
+app.use(errorMiddleware);
 
 // Error handling for unhandled rejections
 process.on("unhandledRejection", (reason, promise) => {

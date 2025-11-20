@@ -6,7 +6,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/generateToken.js";
-import logger from "../utils/logger.js";
+import logger from "../utils/logger.js";  
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
@@ -16,11 +16,7 @@ export const register = async (req, res, next) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      logger.error(
-        { email: req.body.email },
-        "User registration failed: User already exists"
-      );
-      throw new ApiError(400, "User already exists");
+      return next(new ApiError(400, "User already exists"));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -59,14 +55,12 @@ export const login = async (req, res, next) => {
 
     const findUser = await User.findOne({ email });
     if (!findUser) {
-      logger.error({ email: req.email }, "User does not exist");
-      throw new ApiError(404, "User does not exist");
+      return next(new ApiError(404, "User does not exist"));
     }
 
     const isMatch = await bcrypt.compare(password, findUser.password);
     if (!isMatch) {
-      logger.error({ email: req.email }, "Password does not match");
-      throw new ApiError(400, "Invalid credentials");
+      return next(new ApiError(400, "Invalid credentials"));
     }
 
     const accessToken = generateAccessToken(findUser._id);
@@ -106,8 +100,7 @@ export const refreshAccessToken = async (req, res, next) => {
     const incomingRefreshToken = req.cookies.refreshToken;
 
     if (!incomingRefreshToken) {
-      logger.error({ RefreshToke: token }, "Token not found");
-      throw new ApiError(401, "No refresh token");
+      return next(new ApiError(401, "No refresh token"));
     }
 
     // token format validation
@@ -118,8 +111,7 @@ export const refreshAccessToken = async (req, res, next) => {
 
     const user = await User.findById(decodedToken.userId);
     if (!user) {
-      logger.error({ User: user }, "User not found");
-      throw new ApiError(401, "User not found");
+      return next(new ApiError(401, "User not found"));
     }
 
     const isValid = await bcrypt.compare(
@@ -127,8 +119,7 @@ export const refreshAccessToken = async (req, res, next) => {
       user.refreshToken
     );
     if (!isValid) {
-      logger.error({ token: token }, "Not valid token");
-      throw new ApiError(401, "Invalid refresh token");
+      return next(new ApiError(401, "Invalid refresh token"));
     }
 
     // generate new access and refresh token
@@ -143,6 +134,7 @@ export const refreshAccessToken = async (req, res, next) => {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     const responseData = {
@@ -166,8 +158,7 @@ export const logout = async (req, res, next) => {
     const incomingRefreshToken = req.cookies.refreshToken;
 
     if (!incomingRefreshToken) {
-      logger.error("No cookie found");
-      throw new ApiError(400, "You are not logged in");
+      return next(new ApiError(400, "You are not logged in"));
     }
 
     // Verify token
