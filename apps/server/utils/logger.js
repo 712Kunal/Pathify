@@ -17,7 +17,6 @@ const getCaller = () => {
   return `FILE:${shortPath} LINE:${line} COL:${col}`;
 };
 
-
 const colorCaller = (caller) =>
   chalk.bold(chalk.underline(chalk.magentaBright(`${caller}`)));
 

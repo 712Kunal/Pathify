@@ -6,7 +6,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/generateToken.js";
-import logger from "../utils/logger.js";  
+import logger from "../utils/logger.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
@@ -44,7 +44,7 @@ export const register = async (req, res, next) => {
     next(
       error instanceof ApiError
         ? error
-        : new ApiError(500, error.message, error.stack, false)
+        : new ApiError(500, error.message, error.stack, false),
     );
   }
 };
@@ -90,7 +90,7 @@ export const login = async (req, res, next) => {
     next(
       error instanceof ApiError
         ? error
-        : new ApiError(500, error.message, error.stack, false)
+        : new ApiError(500, error.message, error.stack, false),
     );
   }
 };
@@ -106,7 +106,7 @@ export const refreshAccessToken = async (req, res, next) => {
     // token format validation
     const decodedToken = jwt.verify(
       incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET,
     );
 
     const user = await User.findById(decodedToken.userId);
@@ -116,7 +116,7 @@ export const refreshAccessToken = async (req, res, next) => {
 
     const isValid = await bcrypt.compare(
       incomingRefreshToken,
-      user.refreshToken
+      user.refreshToken,
     );
     if (!isValid) {
       return next(new ApiError(401, "Invalid refresh token"));
@@ -142,13 +142,13 @@ export const refreshAccessToken = async (req, res, next) => {
     };
 
     res.json(
-      new ApiResponse(201, "New access token regenerated", responseData)
+      new ApiResponse(201, "New access token regenerated", responseData),
     );
   } catch (error) {
     next(
       error instanceof ApiError
         ? error
-        : new ApiError(401, error.message, error.stack, false)
+        : new ApiError(401, error.message, error.stack, false),
     );
   }
 };
@@ -164,7 +164,7 @@ export const logout = async (req, res, next) => {
     // Verify token
     let decoded = jwt.verify(
       incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET,
     );
 
     const user = await User.findById(decoded.userId);
@@ -191,13 +191,13 @@ export const logout = async (req, res, next) => {
     };
 
     res.json(
-      new ApiResponse(200, "User logged out successfully", responseData)
+      new ApiResponse(200, "User logged out successfully", responseData),
     );
   } catch (error) {
     next(
       error instanceof ApiError
         ? error
-        : new ApiError(500, error.message, error.stack, false)
+        : new ApiError(500, error.message, error.stack, false),
     );
   }
 };

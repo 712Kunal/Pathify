@@ -32,7 +32,7 @@ export const authMiddleware = (req, res, next) => {
     next(
       error instanceof ApiError
         ? error
-        : new ApiError(403, error.message, error.stack, false)
+        : new ApiError(403, error.message, error.stack, false),
     );
   }
 };

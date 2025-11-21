@@ -9,7 +9,7 @@ const errorMiddleware = (err, req, res, next) => {
       err.message || "Internal Server Error",
       err.details || null,
       false,
-      err.stack
+      err.stack,
     );
   }
 
@@ -35,14 +35,14 @@ const errorMiddleware = (err, req, res, next) => {
 
   // build a clean formatted log
   const logOutput = `
-${chalk.red.bold("ERROR")} ${chalk.white(err.message)}
-    ${chalk.yellow("File:    ")} ${chalk.cyan(`${file}:${line}:${col}`)}
-    ${chalk.yellow("Request:  ")}${methodRouteLine}
-    ${chalk.yellow("Req-ID:  ")} ${chalk.cyan(req.id)}
-    ${chalk.yellow("Details: ")} ${chalk.cyan(err.details || "null")}
-    ${chalk.yellow("Stack:   ")} 
-${chalk.gray(err.stack)}
-`;
+    ${chalk.red.bold("ERROR")} ${chalk.white(err.message)}
+        ${chalk.yellow("File:    ")} ${chalk.cyan(`${file}:${line}:${col}`)}
+        ${chalk.yellow("Request:  ")}${methodRouteLine}
+        ${chalk.yellow("Req-ID:  ")} ${chalk.cyan(req.id)}
+        ${chalk.yellow("Details: ")} ${chalk.cyan(err.details || "null")}
+        ${chalk.yellow("Stack:   ")} 
+    ${chalk.gray(err.stack)}
+    `;
 
   // log clean error
   console.log(logOutput);
