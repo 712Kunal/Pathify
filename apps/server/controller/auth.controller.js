@@ -65,12 +65,32 @@ export const login = async (req, res, next) => {
 
     const findUser = await User.findOne({ email });
     if (!findUser) {
-      return next(new ApiError(404, "User does not exist"));
+      return next(
+        new ApiError(
+          404,
+          "User does not exist",
+          {
+            field: "email",
+            value: email,
+          },
+          [],
+        ),
+      );
     }
 
     const isMatch = await bcrypt.compare(password, findUser.password);
     if (!isMatch) {
-      return next(new ApiError(400, "Invalid credentials"));
+      return next(
+        new ApiError(
+          400,
+          "Invalid credentials",
+          {
+            field: "password",
+            value: password,
+          },
+          [],
+        ),
+      );
     }
 
     const accessToken = generateAccessToken(findUser._id);
@@ -110,7 +130,17 @@ export const refreshAccessToken = async (req, res, next) => {
     const incomingRefreshToken = req.cookies.refreshToken;
 
     if (!incomingRefreshToken) {
-      return next(new ApiError(401, "No refresh token"));
+      return next(
+        new ApiError(
+          401,
+          "No refresh token",
+          {
+            field: "refreshToken",
+            value: null,
+          },
+          [],
+        ),
+      );
     }
 
     // token format validation
