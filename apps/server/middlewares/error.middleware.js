@@ -1,9 +1,8 @@
 import ApiError from "../utils/ApiError.js";
-import logger from "../utils/logger.js";
 import chalk from "chalk";
 
-const errorMiddleware = async (err, req, res, next) => {
-  // convert unknown errors
+const errorMiddleware = (err, req, res, next) => {
+  // Convert unknown errors to ApiError
   if (!(err instanceof ApiError)) {
     err = new ApiError(
       err.statusCode || 500,
@@ -14,39 +13,44 @@ const errorMiddleware = async (err, req, res, next) => {
     );
   }
 
-  const stack = err.stack.split("\n");
-
-  // index 2 = actual place where error originated
-  const callerLine = stack[2] || stack[1];
+  // Extract actual caller (correct source of error)
+  const stackLines = err.stack.split("\n");
+  const callerLine = stackLines[2] || stackLines[1];
+  let file = "unknown";
+  let line = "0";
+  let col = "0";
 
   const match = callerLine.match(/\((.*):(\d+):(\d+)\)/);
-  let caller = "unknown";
-
   if (match) {
     const fullPath = match[1];
-    const line = match[2];
-    const col = match[3];
-
     const shortPath = fullPath.split("Pathify/apps/server")[1] || fullPath;
-
-    caller = `FILE:${shortPath} LINE:${line} COL:${col}`;
+    file = shortPath;
+    line = match[2];
+    col = match[3];
   }
 
-  const colorCaller = (caller) =>
-    chalk.bold(chalk.underline(chalk.magentaBright(`${caller}`)));
+  // build a clean formatted log
+  const logOutput = `
+${chalk.red.bold("ERROR")} ${chalk.white(err.message)}
+    ${chalk.yellow("File:    ")} ${chalk.cyan(`${file}:${line}:${col}`)}
+    ${chalk.yellow("Request: ")} ${chalk.cyan(
+    `${req.method} ${req.originalUrl}`
+  )}
+    ${chalk.yellow("Req-ID:  ")} ${chalk.cyan(req.id)}
+    ${chalk.yellow("Details: ")} ${chalk.cyan(err.details || "null")}
+    ${chalk.yellow("Stack:   ")} 
+${chalk.gray(err.stack)}
+`;
 
-  logger.error(err.message, {
-    caller: colorCaller(caller),
-    stack: err.stack,
-    details: err.details,
-    errors: err.errors,
-  });
+  // log clean error
+  console.log(logOutput);
 
+  // continue JSON response to client
   return res.status(err.statusCode).json({
     success: false,
     message: err.message,
-    details: err.details || null,
-    errors: err.errors || [],
+    details: err.details,
+    errors: err.errors,
   });
 };
 
