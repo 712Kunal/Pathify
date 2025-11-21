@@ -37,13 +37,26 @@ const logger = pino({
 });
 
 export default {
-  info: (msg, meta = {}) => {
+  info: (meta, msg) => {
     const caller = getCaller();
+
+    // If only a string is passed, treat it as message
+    if (typeof meta === "string") {
+      msg = meta;
+      meta = {};
+    }
+
     logger.info({ caller: colorCaller(caller), ...meta }, msg);
   },
 
-  error: (msg, meta = {}) => {
+  error: (meta, msg) => {
     const caller = getCaller();
+
+    if (typeof meta === "string") {
+      msg = meta;
+      meta = {};
+    }
+
     logger.error({ caller: colorCaller(caller), ...meta }, msg);
   },
 

@@ -50,9 +50,9 @@ const errorMiddleware = (err, req, res, next) => {
   // continue JSON response to client
   return res.status(err.statusCode).json({
     success: false,
-    message: err.message,
-    details: err.details,
-    errors: err.errors,
+    message: err.message || "Internal server error",
+    details: err.details || null,
+    errors: err.errors || [],
   });
 };
 
