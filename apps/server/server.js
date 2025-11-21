@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
 
 // Database connection
@@ -49,7 +49,7 @@ process.on("unhandledRejection", (reason, promise) => {
       reason,
       type: "unhandledRejection",
     },
-    "Unhandled Promise Rejection occurred"
+    "Unhandled Promise Rejection occurred",
   );
 });
 
