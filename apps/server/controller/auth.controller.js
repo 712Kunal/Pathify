@@ -12,7 +12,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 
 export const register = async (req, res, next) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password } = req.validated.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -51,7 +51,7 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.validated.body;
 
     const findUser = await User.findOne({ email });
     if (!findUser) {
