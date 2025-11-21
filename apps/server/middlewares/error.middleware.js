@@ -29,13 +29,15 @@ const errorMiddleware = (err, req, res, next) => {
     col = match[3];
   }
 
+  const methodRouteLine =
+    `${chalk.magenta("METHOD:")} ${chalk.cyan(req.method)}  ` +
+    `${chalk.magenta("ROUTE:")} ${chalk.cyan(req.originalUrl)}`;
+
   // build a clean formatted log
   const logOutput = `
 ${chalk.red.bold("ERROR")} ${chalk.white(err.message)}
     ${chalk.yellow("File:    ")} ${chalk.cyan(`${file}:${line}:${col}`)}
-    ${chalk.yellow("Request: ")} ${chalk.cyan(
-    `${req.method} ${req.originalUrl}`
-  )}
+    ${chalk.yellow("Request:  ")}${methodRouteLine}
     ${chalk.yellow("Req-ID:  ")} ${chalk.cyan(req.id)}
     ${chalk.yellow("Details: ")} ${chalk.cyan(err.details || "null")}
     ${chalk.yellow("Stack:   ")} 
