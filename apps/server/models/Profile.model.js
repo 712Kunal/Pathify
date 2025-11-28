@@ -59,7 +59,10 @@ const UserprofileSchema = new mongoose.Schema(
       gender: { type: String },
       contact: { type: String },
       location: { type: String },
-      avatar: { type: String },
+      avatar: {
+        url: String,
+        public_id: String,
+      },
 
       created_at: { type: Date, default: Date.now },
       updated_at: { type: Date, default: Date.now },

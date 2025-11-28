@@ -27,8 +27,9 @@ app.use(
 // Database connection
 connectDB();
 
-import authRoutes from "./routes/auth.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
+import authRoutes from "./routes/auth.routes.js";
+import cloudinaryRoute from "./routes/cloudinary.routes.js";
 
 //Health-check
 app.get("/", (req, res) => {
@@ -37,6 +38,9 @@ app.get("/", (req, res) => {
 
 //public routes
 app.use("/api/auth", authRoutes);
+
+//private routes
+app.use("/api/cloudinary", cloudinaryRoute);
 
 // Mount the global error handler LAST
 app.use(errorMiddleware);
