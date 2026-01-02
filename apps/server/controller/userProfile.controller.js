@@ -1,6 +1,6 @@
-import { UserProfile } from "../models/Profile.model";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
+import { UserProfile } from "../models/Profile.model.js";
+import ApiError from "../utils/ApiError.js";
+import ApiResponse from "../utils/ApiResponse.js";
 
 export const createUserProfile = async (req, res, next) => {
   try {

@@ -1,7 +1,7 @@
-import UserProfile from "../models/Profile.model";
-import cloudinary from "../config/cloudinary.config";
-import ApiError from "../utils/ApiError";
-import ApiResponse from "../utils/ApiResponse";
+import { UserProfile } from "../models/Profile.model.js";
+import cloudinary from "../config/cloudinary.config.js";
+import ApiError from "../utils/ApiError.js";
+import ApiResponse from "../utils/ApiResponse.js";
 import fs from "fs";
 import { url } from "inspector";
 
