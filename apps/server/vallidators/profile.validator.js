@@ -52,6 +52,12 @@ export const profileSchema = z.object({
         gender: z.string().optional(),
         contact: z.string().optional(),
         location: z.string().optional(),
+        avatar: z
+          .object({
+            url: z.string().optional(),
+            public_id: z.string().optional(),
+          })
+          .optional(), // mark avatar optional
       })
       .optional(),
 

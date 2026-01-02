@@ -77,7 +77,6 @@ export const getMyProfile = async (req, res, next) => {
 export const updateUserProfile = async (req, res, next) => {
   try {
     const userId = req.userId;
-
     const profile = await UserProfile.findOne({ user_id: userId });
     if (!profile) {
       return next(
@@ -86,43 +85,55 @@ export const updateUserProfile = async (req, res, next) => {
           "Profile not found",
           {
             field: "userId",
-            value: user_Id,
+            value: userId,
           },
           [],
         ),
       );
     }
 
-    if (req.body.background) {
-      profile.background = {
-        ...profile.background,
-        ...req.body.background,
-        updated_at: new Date(),
-      };
+    const { personal_info, background, social_links, personal_preferences } =
+      req.body;
+
+    // --- PERSONAL INFO ---
+    if (personal_info) {
+      for (const key in personal_info) {
+        // skip undefined keys
+        if (personal_info[key] !== undefined) {
+          profile.personal_info[key] = personal_info[key];
+        }
+      }
+      // ensure avatar exists
+      if (!profile.personal_info.avatar) {
+        profile.personal_info.avatar = { url: "", public_id: "" };
+      }
     }
 
-    if (req.body.personal_info) {
-      profile.personal_info = {
-        ...profile.personal_info,
-        ...req.body.personal_info,
-        updated_at: new Date(),
-      };
+    // --- BACKGROUND ---
+    if (background) {
+      for (const key in background) {
+        if (background[key] !== undefined) {
+          profile.background[key] = background[key];
+        }
+      }
     }
 
-    if (req.body.personal_preferences) {
-      profile.personal_preferences = {
-        ...profile.personal_preferences,
-        ...req.body.personal_preferences,
-        updated_at: new Date(),
-      };
+    // --- SOCIAL LINKS ---
+    if (social_links) {
+      for (const key in social_links) {
+        if (social_links[key] !== undefined) {
+          profile.social_links[key] = social_links[key];
+        }
+      }
     }
 
-    if (req.body.social_links) {
-      profile.social_links = {
-        ...profile.social_links,
-        ...req.body.social_links,
-        updated_at: new Date(),
-      };
+    // --- PREFERENCES ---
+    if (personal_preferences) {
+      for (const key in personal_preferences) {
+        if (personal_preferences[key] !== undefined) {
+          profile.personal_preferences[key] = personal_preferences[key];
+        }
+      }
     }
 
     await profile.save();
