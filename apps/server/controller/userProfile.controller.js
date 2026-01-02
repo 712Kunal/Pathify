@@ -4,7 +4,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 
 export const createUserProfile = async (req, res, next) => {
   try {
-    const user_id = req.user._id;
+    const user_id = req.userId;
 
     // check if already exist
     const existingProfile = await UserProfile.findOne({ user_id });
@@ -43,10 +43,10 @@ export const createUserProfile = async (req, res, next) => {
 
 export const getMyProfile = async (req, res, next) => {
   try {
-    const user_Id = req.user._id;
+    const userId = req.userId;
 
-    const profile = await UserProfile.findOne({ user_Id }).populate(
-      "user_Id",
+    const profile = await UserProfile.findOne({ user_id: userId }).populate(
+      "user_id",
       "username email",
     );
 
@@ -57,7 +57,7 @@ export const getMyProfile = async (req, res, next) => {
           "Profile not found",
           {
             field: "userId",
-            value: user_Id,
+            value: userId,
           },
           [],
         ),
@@ -76,9 +76,9 @@ export const getMyProfile = async (req, res, next) => {
 
 export const updateUserProfile = async (req, res, next) => {
   try {
-    const user_Id = req.user._id;
+    const userId = req.userId;
 
-    const profile = await UserProfile.findOne({ user_Id });
+    const profile = await UserProfile.findOne({ user_id: userId });
     if (!profile) {
       return next(
         new ApiError(

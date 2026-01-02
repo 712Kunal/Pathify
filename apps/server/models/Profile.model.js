@@ -17,7 +17,7 @@ const UserprofileSchema = new mongoose.Schema(
 
       hobbies: [
         {
-          hobby_id: { type: String, required: true },
+          _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
           text: { type: String, required: true },
           created_at: { type: Date, default: Date.now },
         },
@@ -25,7 +25,7 @@ const UserprofileSchema = new mongoose.Schema(
 
       interests: [
         {
-          interest_id: { type: String, required: true },
+          _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
           interest: { type: String, required: true },
           created_at: { type: Date, default: Date.now },
         },
@@ -33,7 +33,7 @@ const UserprofileSchema = new mongoose.Schema(
 
       languages_known: [
         {
-          language_id: { type: String, required: true },
+          _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
           language: { type: String, required: true },
           created_at: { type: Date, default: Date.now },
         },
@@ -41,7 +41,7 @@ const UserprofileSchema = new mongoose.Schema(
 
       learning_styles: [
         {
-          learningStyle_id: { type: String, required: true },
+          _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
           learningStyle: { type: String, required: true },
           created_at: { type: Date, default: Date.now },
         },
@@ -60,8 +60,8 @@ const UserprofileSchema = new mongoose.Schema(
       contact: { type: String },
       location: { type: String },
       avatar: {
-        url: String,
-        public_id: String,
+        url: { type: String, default: "" },
+        public_id: { type: String, default: "" },
       },
 
       created_at: { type: Date, default: Date.now },

@@ -108,6 +108,8 @@ export const login = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    console.log("REFRESH TOKEN (dev only):", refreshToken);
+
     const responseData = {
       user: {
         id: findUser._id,
