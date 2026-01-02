@@ -41,6 +41,7 @@ app.use("/api/auth", authRoutes);
 
 //private routes
 app.use("/api/cloudinary", cloudinaryRoute);
+// app.use("/api/user/profile",)
 
 // Mount the global error handler LAST
 app.use(errorMiddleware);
