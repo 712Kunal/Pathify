@@ -1,15 +1,12 @@
+import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import logger from "./utils/logger.js";
 import ApiResponse from "./utils/ApiResponse.js";
 
 import connectDB from "./config/db.js";
-
-// load environment variables from .env file
-dotenv.config();
 
 const app = express();
 

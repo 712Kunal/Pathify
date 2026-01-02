@@ -2,12 +2,11 @@ import { UserProfile } from "../models/Profile.model.js";
 import cloudinary from "../config/cloudinary.config.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import fs from "fs";
-import { url } from "inspector";
+import streamifier from "streamifier";
 
 export const updateAvatar = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const file = req.file;
 
     if (!file) {
@@ -39,29 +38,42 @@ export const updateAvatar = async (req, res, next) => {
       );
     }
 
-    // remove old avatar if exist
+    profile.personal_info = profile.personal_info || {};
+
+    // delete old avatar
     if (profile.personal_info.avatar?.public_id) {
-      await cloudinary.uploader.destroy(`avatars/${public_id}`);
+      await cloudinary.uploader.destroy(profile.personal_info.avatar.public_id);
     }
 
-    // upload new avatar to cloudinary
-    const uploaded = await cloudinary.uploader.upload(file.path, {
-      folder: "avatar",
-      public_id: `user_${userId}_avatar`,
-    });
+    // upload buffer to cloudinary
+    const uploadFromBuffer = () =>
+      new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: "avatar",
+            public_id: `user_${userId}_avatar`,
+            overwrite: true,
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          },
+        );
 
-    // remove temp uploaded file
-    fs.unlinkSync(file.path);
+        streamifier.createReadStream(file.buffer).pipe(stream);
+      });
 
-    // update user avatar in db
+    const uploaded = await uploadFromBuffer();
+
     profile.personal_info.avatar = {
       url: uploaded.secure_url,
       public_id: uploaded.public_id,
     };
+
     await profile.save();
 
     const responseData = {
-      avatar: profile.avatar,
+      avatar: profile.personal_info.avatar,
     };
 
     res.json(new ApiResponse(200, "Avatar updated successfully", responseData));
